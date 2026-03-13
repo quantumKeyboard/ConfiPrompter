@@ -1,6 +1,6 @@
-# LensPrompt
+# ConfiPrompter
 
-LensPrompt is a desktop teleprompter app built with Electron. It opens two windows:
+ConfiPrompter is a desktop teleprompter app built with Electron. It opens two windows:
 
 - A floating teleprompter overlay (frameless, transparent, always on top)
 - A control panel for script loading and playback/display settings
