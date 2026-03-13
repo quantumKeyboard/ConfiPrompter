@@ -1,0 +1,142 @@
+:root {
+  --overlay-opacity: 0.85;
+  --text-color: #ffffff;
+  --font-size: 32px;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  background: transparent;
+  color: var(--text-color);
+  font-family: "Lucida Sans", "Trebuchet MS", "Segoe UI", sans-serif;
+}
+
+#overlay {
+  position: fixed;
+  inset: 0;
+  border-radius: 12px;
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, calc(var(--overlay-opacity) * 0.32));
+  background:
+    radial-gradient(
+      circle at top right,
+      rgba(255, 255, 255, calc(var(--overlay-opacity) * 0.18)),
+      transparent 45%
+    ),
+    linear-gradient(
+      160deg,
+      rgba(16, 16, 24, calc(var(--overlay-opacity) * 0.9)),
+      rgba(5, 7, 14, calc(var(--overlay-opacity) * 0.95))
+    );
+}
+
+#overlay.movable-mode {
+  cursor: move;
+}
+
+#drag-handle {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 28px;
+  padding: 6px 10px;
+  display: flex;
+  align-items: center;
+  font-size: 12px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.75);
+  cursor: grab;
+  user-select: none;
+  -webkit-app-region: drag;
+  background: linear-gradient(
+    180deg,
+    rgba(255, 255, 255, calc(var(--overlay-opacity) * 0.28)),
+    rgba(255, 255, 255, calc(var(--overlay-opacity) * 0.09))
+  );
+}
+
+#viewport {
+  position: absolute;
+  inset: 28px 0 0;
+  overflow: hidden;
+  -webkit-app-region: no-drag;
+}
+
+#mirror-shell {
+  width: 100%;
+  height: 100%;
+  will-change: transform;
+}
+
+#text-track {
+  padding-left: 20px;
+  padding-right: 20px;
+  will-change: transform;
+  font-size: var(--font-size);
+  line-height: 1.6;
+  font-weight: 600;
+  text-wrap: pretty;
+}
+
+#text-track p {
+  margin: 0;
+  color: var(--text-color);
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
+}
+
+#center-guide {
+  position: absolute;
+  left: 18px;
+  right: 18px;
+  top: 50%;
+  height: calc(var(--font-size) * 1.7);
+  transform: translateY(-50%);
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  pointer-events: none;
+}
+
+#center-guide.is-hidden {
+  display: none;
+}
+
+#empty-state {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  padding: 20px;
+  text-align: center;
+  font-size: 14px;
+  letter-spacing: 0.02em;
+  color: rgba(255, 255, 255, 0.6);
+}
+
+#end-indicator {
+  position: absolute;
+  right: 14px;
+  bottom: 14px;
+  border-radius: 999px;
+  background: rgba(10, 12, 20, 0.75);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: rgba(255, 255, 255, 0.85);
+  padding: 6px 12px;
+  font-size: 12px;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+#overlay.movable-mode #viewport {
+  -webkit-app-region: drag;
+}

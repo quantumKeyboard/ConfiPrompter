@@ -1,0 +1,108 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>LensPrompt Control</title>
+    <link rel="stylesheet" href="control.css" />
+  </head>
+  <body>
+    <main class="panel">
+      <header class="panel-header">
+        <div>
+          <h1>LensPrompt</h1>
+          <p>Desktop teleprompter controller</p>
+        </div>
+        <div class="status-pill" id="connection-status">
+          <span class="dot"></span>
+          Connected
+        </div>
+      </header>
+
+      <section class="section">
+        <div class="section-head">
+          <h2>Script Source</h2>
+        </div>
+
+        <button id="load-file-btn" class="button secondary" type="button">Load .txt / .md / .docx</button>
+        <p id="file-name" class="file-name">No file loaded</p>
+
+        <label class="field-label" for="script-input">Inline text editor</label>
+        <textarea id="script-input" placeholder="Type or paste your script here..."></textarea>
+      </section>
+
+      <section class="section">
+        <div class="section-head">
+          <h2>Playback</h2>
+          <span id="playback-state">Paused</span>
+        </div>
+
+        <div class="button-row">
+          <button id="play-btn" class="button" type="button" disabled>Play</button>
+          <button id="pause-btn" class="button secondary" type="button">Pause</button>
+          <button id="reset-btn" class="button secondary" type="button">Reset</button>
+        </div>
+
+        <div class="progress-wrap">
+          <span>Progress</span>
+          <span id="progress-value">0%</span>
+        </div>
+      </section>
+
+      <section class="section">
+        <div class="section-head">
+          <h2>Speed</h2>
+          <span id="speed-readout">50 px/s</span>
+        </div>
+        <input id="speed-slider" type="range" min="0" max="200" step="1" value="50" />
+      </section>
+
+      <section class="section">
+        <div class="section-head">
+          <h2>Display</h2>
+        </div>
+
+        <label class="field-label" for="font-slider">Font size <span id="font-readout">32 px</span></label>
+        <input id="font-slider" type="range" min="16" max="72" step="1" value="32" />
+
+        <label class="field-label" for="opacity-slider">Opacity <span id="opacity-readout">85%</span></label>
+        <input id="opacity-slider" type="range" min="0" max="100" step="1" value="85" />
+
+        <div class="field-label">Text color</div>
+        <div class="color-row" id="color-group">
+          <label><input type="radio" name="text-color" value="#ffffff" checked /> White</label>
+          <label><input type="radio" name="text-color" value="#ffeb3b" /> Yellow</label>
+          <label><input type="radio" name="text-color" value="#111111" /> Black</label>
+        </div>
+      </section>
+
+      <section class="section">
+        <div class="section-head">
+          <h2>Advanced</h2>
+        </div>
+
+        <label class="toggle-row" for="mirror-toggle">
+          <span>Mirror mode</span>
+          <input id="mirror-toggle" type="checkbox" />
+        </label>
+
+        <label class="toggle-row" for="highlight-toggle">
+          <span>Highlight current line</span>
+          <input id="highlight-toggle" type="checkbox" checked />
+        </label>
+
+        <label class="toggle-row" for="movable-toggle">
+          <span>Movable overlay mode</span>
+          <input id="movable-toggle" type="checkbox" />
+        </label>
+      </section>
+
+      <footer class="footer-note">
+        Shortcuts: <code>Ctrl/Cmd+Shift+Space</code> play/pause, <code>Ctrl/Cmd+Shift+R</code> reset,
+        <code>Ctrl/Cmd+Shift+L</code> show windows.
+      </footer>
+    </main>
+
+    <script src="control.js"></script>
+  </body>
+</html>

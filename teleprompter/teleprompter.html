@@ -1,0 +1,26 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>LensPrompt Overlay</title>
+    <link rel="stylesheet" href="teleprompter.css" />
+  </head>
+  <body>
+    <div id="overlay">
+      <div id="drag-handle" title="Drag overlay">LensPrompt</div>
+
+      <div id="viewport">
+        <div id="center-guide" aria-hidden="true"></div>
+        <div id="mirror-shell">
+          <div id="text-track" role="document"></div>
+        </div>
+
+        <div id="empty-state">Load text or type in the control panel to begin.</div>
+        <div id="end-indicator" hidden>End of script</div>
+      </div>
+    </div>
+
+    <script src="teleprompter.js"></script>
+  </body>
+</html>

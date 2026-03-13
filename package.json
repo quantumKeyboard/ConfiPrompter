@@ -1,0 +1,49 @@
+{
+  "name": "lens-prompt",
+  "version": "1.0.0",
+  "description": "Desktop teleprompter for video calls",
+  "author": "LensPrompt",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron .",
+    "dev": "cross-env NODE_ENV=development electron .",
+    "build": "electron-builder",
+    "build:mac": "electron-builder --mac",
+    "build:win": "electron-builder --win",
+    "build:linux": "electron-builder --linux"
+  },
+  "dependencies": {
+    "electron-store": "^8.2.0",
+    "mammoth": "^1.8.0"
+  },
+  "devDependencies": {
+    "cross-env": "^7.0.3",
+    "electron": "^28.3.3",
+    "electron-builder": "^24.13.3",
+    "electron-reload": "^1.5.0"
+  },
+  "build": {
+    "appId": "com.yourname.lensprompt",
+    "productName": "LensPrompt",
+    "files": [
+      "**/*",
+      "!build/**/*",
+      "!teleprompter_project.md"
+    ],
+    "mac": {
+      "category": "public.app-category.productivity"
+    },
+    "win": {
+      "signAndEditExecutable": false,
+      "target": [
+        "nsis"
+      ]
+    },
+    "linux": {
+      "category": "Utility",
+      "target": [
+        "AppImage"
+      ]
+    }
+  }
+}
