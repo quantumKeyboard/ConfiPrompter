@@ -1,8 +1,9 @@
 {
-  "name": "lens-prompt",
-  "version": "1.0.0",
-  "description": "Desktop teleprompter for video calls",
-  "author": "LensPrompt",
+  "name": "confiprompter",
+  "productName": "ConfiPrompter",
+  "version": "2.0.0",
+  "description": "Compact, screen-share-invisible desktop teleprompter with voice-reactive scrolling",
+  "author": "ConfiPrompter",
   "main": "main.js",
   "scripts": {
     "start": "electron .",
@@ -10,7 +11,8 @@
     "build": "electron-builder",
     "build:mac": "electron-builder --mac",
     "build:win": "electron-builder --win",
-    "build:linux": "electron-builder --linux"
+    "build:linux": "electron-builder --linux",
+    "icons": "node scripts/generate-icons.js"
   },
   "dependencies": {
     "electron-store": "^8.2.0",
@@ -18,20 +20,25 @@
   },
   "devDependencies": {
     "cross-env": "^7.0.3",
-    "electron": "^28.3.3",
-    "electron-builder": "^24.13.3",
+    "electron": "^44.9.3",
+    "electron-builder": "^26.0.12",
     "electron-reload": "^1.5.0"
   },
   "build": {
-    "appId": "com.yourname.lensprompt",
-    "productName": "LensPrompt",
+    "appId": "com.confiprompter.app",
+    "productName": "ConfiPrompter",
     "files": [
       "**/*",
       "!build/**/*",
+      "!dist/**/*",
+      "!scripts/**/*",
       "!teleprompter_project.md"
     ],
     "mac": {
-      "category": "public.app-category.productivity"
+      "category": "public.app-category.productivity",
+      "extendInfo": {
+        "NSMicrophoneUsageDescription": "ConfiPrompter listens for your voice (locally, nothing is recorded) to scroll the script while you speak."
+      }
     },
     "win": {
       "signAndEditExecutable": false,
@@ -44,6 +51,7 @@
       "target": [
         "AppImage"
       ]
-    }
+    },
+    "icon": "assets/icon.png"
   }
 }
