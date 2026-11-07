@@ -2,105 +2,296 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
+    <meta
+      http-equiv="Content-Security-Policy"
+      content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:"
+    />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>LensPrompt Control</title>
+    <title>ConfiPrompter — Control</title>
     <link rel="stylesheet" href="control.css" />
   </head>
   <body>
-    <main class="panel">
-      <header class="panel-header">
-        <div>
-          <h1>LensPrompt</h1>
-          <p>Desktop teleprompter controller</p>
+    <main class="app">
+      <!-- ------------------------------------------------------------ Header -->
+      <header class="header">
+        <div class="brand">
+          <span class="brand-mark" aria-hidden="true">
+            <svg viewBox="0 0 24 24"><rect x="2" y="3" width="20" height="18" rx="5"/><path d="M7 9h10M7 12.5h7M7 16h9" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" fill="none"/></svg>
+          </span>
+          <div>
+            <h1>ConfiPrompter</h1>
+            <p id="status-line">No script loaded</p>
+          </div>
         </div>
-        <div class="status-pill" id="connection-status">
-          <span class="dot"></span>
-          Connected
-        </div>
+        <button type="button" class="stealth-chip" id="stealth-chip" title="Toggle screen-share stealth (Ctrl+Alt+Shift+S)">
+          <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M8 1.5 2.5 3.6v4c0 3.3 2.3 5.9 5.5 6.9 3.2-1 5.5-3.6 5.5-6.9v-4L8 1.5z"/></svg>
+          <span id="stealth-chip-label">Hidden</span>
+        </button>
       </header>
 
-      <section class="section">
-        <div class="section-head">
-          <h2>Script Source</h2>
+      <!-- --------------------------------------------------------- Transport -->
+      <section class="card transport">
+        <div class="transport-row">
+          <button type="button" class="icon-btn" id="back-btn" title="Previous paragraph" aria-label="Previous paragraph">
+            <svg viewBox="0 0 16 16"><path d="M10.5 3.5 5.5 8l5 4.5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </button>
+          <button type="button" class="play-btn" id="play-btn" title="Play / pause (Ctrl+Shift+Space)" aria-label="Play">
+            <svg class="i-play" viewBox="0 0 16 16"><path d="M5 3.2v9.6a.6.6 0 0 0 .9.5l7.6-4.8a.6.6 0 0 0 0-1L5.9 2.7a.6.6 0 0 0-.9.5z"/></svg>
+            <svg class="i-pause" viewBox="0 0 16 16"><rect x="4" y="3" width="3" height="10" rx="1"/><rect x="9" y="3" width="3" height="10" rx="1"/></svg>
+          </button>
+          <button type="button" class="icon-btn" id="fwd-btn" title="Next paragraph" aria-label="Next paragraph">
+            <svg viewBox="0 0 16 16"><path d="M5.5 3.5 10.5 8l-5 4.5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </button>
+          <button type="button" class="icon-btn" id="reset-btn" title="Back to top (Ctrl+Shift+R)" aria-label="Back to top">
+            <svg viewBox="0 0 16 16"><path d="M3.5 8a4.5 4.5 0 1 0 1.4-3.3M3.5 2.5v2.8h2.8" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </button>
+
+          <div class="transport-meta">
+            <span id="playback-state">Paused</span>
+            <span id="time-readout" class="muted">—</span>
+          </div>
+
+          <button type="button" class="voice-chip" id="voice-chip" title="Voice-reactive scrolling (Ctrl+Alt+Shift+V)">
+            <svg viewBox="0 0 16 16" aria-hidden="true"><rect x="5.5" y="1.5" width="5" height="8.5" rx="2.5"/><path d="M3.2 7.5a4.8 4.8 0 0 0 9.6 0M8 12.3v2.2" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>
+            <span>Voice</span>
+            <span class="chip-meter"><span id="voice-chip-level"></span></span>
+          </button>
         </div>
 
-        <button id="load-file-btn" class="button secondary" type="button">Load .txt / .md / .docx</button>
-        <p id="file-name" class="file-name">No file loaded</p>
-
-        <label class="field-label" for="script-input">Inline text editor</label>
-        <textarea id="script-input" placeholder="Type or paste your script here..."></textarea>
-      </section>
-
-      <section class="section">
-        <div class="section-head">
-          <h2>Playback</h2>
-          <span id="playback-state">Paused</span>
+        <div class="progress" id="progress" role="slider" tabindex="0" aria-label="Script position" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">
+          <div class="progress-fill" id="progress-fill"></div>
+          <div class="progress-thumb" id="progress-thumb"></div>
         </div>
 
-        <div class="button-row">
-          <button id="play-btn" class="button" type="button" disabled>Play</button>
-          <button id="pause-btn" class="button secondary" type="button">Pause</button>
-          <button id="reset-btn" class="button secondary" type="button">Reset</button>
-        </div>
-
-        <div class="progress-wrap">
-          <span>Progress</span>
-          <span id="progress-value">0%</span>
-        </div>
-      </section>
-
-      <section class="section">
-        <div class="section-head">
-          <h2>Speed</h2>
-          <span id="speed-readout">50 px/s</span>
-        </div>
-        <input id="speed-slider" type="range" min="0" max="200" step="1" value="50" />
-      </section>
-
-      <section class="section">
-        <div class="section-head">
-          <h2>Display</h2>
-        </div>
-
-        <label class="field-label" for="font-slider">Font size <span id="font-readout">32 px</span></label>
-        <input id="font-slider" type="range" min="16" max="72" step="1" value="32" />
-
-        <label class="field-label" for="opacity-slider">Opacity <span id="opacity-readout">85%</span></label>
-        <input id="opacity-slider" type="range" min="0" max="100" step="1" value="85" />
-
-        <div class="field-label">Text color</div>
-        <div class="color-row" id="color-group">
-          <label><input type="radio" name="text-color" value="#ffffff" checked /> White</label>
-          <label><input type="radio" name="text-color" value="#ffeb3b" /> Yellow</label>
-          <label><input type="radio" name="text-color" value="#111111" /> Black</label>
+        <div class="speed-row">
+          <span class="label">Speed</span>
+          <button type="button" class="mini-btn" data-nudge="speed" data-step="-5" aria-label="Slower">−</button>
+          <input type="range" data-setting="speed" min="0" max="300" step="1" aria-label="Speed" />
+          <button type="button" class="mini-btn" data-nudge="speed" data-step="5" aria-label="Faster">+</button>
+          <output data-readout="speed" class="readout"></output>
         </div>
       </section>
 
-      <section class="section">
-        <div class="section-head">
-          <h2>Advanced</h2>
+      <!-- -------------------------------------------------------------- Tabs -->
+      <nav class="tabs" role="tablist">
+        <button type="button" role="tab" class="tab is-active" data-tab="script" aria-selected="true">Script</button>
+        <button type="button" role="tab" class="tab" data-tab="look" aria-selected="false">Look</button>
+        <button type="button" role="tab" class="tab" data-tab="voice" aria-selected="false">Voice</button>
+        <button type="button" role="tab" class="tab" data-tab="window" aria-selected="false">Window</button>
+      </nav>
+
+      <!-- -------------------------------------------------------- Script tab -->
+      <section class="panel is-active" data-panel="script">
+        <div class="toolbar-row">
+          <button type="button" class="btn" id="load-file-btn">
+            <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M2.5 4.5a1 1 0 0 1 1-1h3l1.5 1.5h4.5a1 1 0 0 1 1 1v6a1 1 0 0 1-1 1h-9a1 1 0 0 1-1-1z" fill="none" stroke="currentColor" stroke-width="1.4"/></svg>
+            Open file
+          </button>
+          <select id="library-select" class="select grow" aria-label="Saved scripts">
+            <option value="">Saved scripts…</option>
+          </select>
+          <button type="button" class="btn icon-only" id="library-delete" title="Delete saved script" aria-label="Delete saved script" disabled>
+            <svg viewBox="0 0 16 16"><path d="M3.5 4.5h9M6.5 4.5V3h3v1.5M5 4.5l.6 8.5h4.8l.6-8.5" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </button>
         </div>
 
-        <label class="toggle-row" for="mirror-toggle">
-          <span>Mirror mode</span>
-          <input id="mirror-toggle" type="checkbox" />
+        <div class="editor-wrap" id="drop-zone">
+          <textarea id="script-input" spellcheck="true" placeholder="Paste or type your script here…&#10;&#10;# Section headings&#10;[pause] on its own line stops the scroll&#10;[smile] stage directions · **emphasis**"></textarea>
+          <div class="drop-hint" aria-hidden="true">Drop .txt, .md or .docx</div>
+        </div>
+
+        <div class="script-meta">
+          <span id="file-name" class="muted">Unsaved script</span>
+          <span id="word-stats" class="muted">0 words</span>
+        </div>
+
+        <div class="save-row">
+          <input type="text" id="script-name" class="input grow" placeholder="Script name" maxlength="80" />
+          <button type="button" class="btn primary" id="library-save">Save</button>
+        </div>
+        <p class="hint" id="library-message" role="status"></p>
+      </section>
+
+      <!-- ---------------------------------------------------------- Look tab -->
+      <section class="panel" data-panel="look" hidden>
+        <div class="field">
+          <div class="field-head"><label for="font-size">Text size</label><output data-readout="fontSize" class="readout"></output></div>
+          <input id="font-size" type="range" data-setting="fontSize" min="14" max="96" step="1" />
+        </div>
+
+        <div class="field">
+          <div class="field-head"><label for="line-height">Line spacing</label><output data-readout="lineHeight" class="readout"></output></div>
+          <input id="line-height" type="range" data-setting="lineHeight" min="1.1" max="2.2" step="0.05" />
+        </div>
+
+        <div class="field">
+          <div class="field-head"><span>Typeface</span></div>
+          <div class="segmented" role="radiogroup" aria-label="Typeface">
+            <label><input type="radio" name="fontFamily" data-setting="fontFamily" value="sans" /><span>Sans</span></label>
+            <label><input type="radio" name="fontFamily" data-setting="fontFamily" value="serif" /><span class="serif">Serif</span></label>
+            <label><input type="radio" name="fontFamily" data-setting="fontFamily" value="rounded" /><span>Rounded</span></label>
+            <label><input type="radio" name="fontFamily" data-setting="fontFamily" value="mono" /><span class="mono">Mono</span></label>
+          </div>
+        </div>
+
+        <div class="field">
+          <div class="field-head"><span>Alignment</span></div>
+          <div class="segmented" role="radiogroup" aria-label="Alignment">
+            <label><input type="radio" name="textAlign" data-setting="textAlign" value="left" /><span>Left</span></label>
+            <label><input type="radio" name="textAlign" data-setting="textAlign" value="center" /><span>Center</span></label>
+          </div>
+        </div>
+
+        <div class="field">
+          <div class="field-head"><span>Text color</span></div>
+          <div class="swatches" id="text-swatches">
+            <button type="button" class="swatch" data-color="#ffffff" style="--c:#ffffff" aria-label="White"></button>
+            <button type="button" class="swatch" data-color="#fff3d6" style="--c:#fff3d6" aria-label="Warm white"></button>
+            <button type="button" class="swatch" data-color="#ffe066" style="--c:#ffe066" aria-label="Yellow"></button>
+            <button type="button" class="swatch" data-color="#a6f4c5" style="--c:#a6f4c5" aria-label="Mint"></button>
+            <button type="button" class="swatch" data-color="#9fdcff" style="--c:#9fdcff" aria-label="Sky"></button>
+            <button type="button" class="swatch" data-color="#111111" style="--c:#111111" aria-label="Black"></button>
+            <label class="swatch custom" title="Custom color">
+              <input type="color" data-setting="textColor" aria-label="Custom text color" />
+            </label>
+          </div>
+        </div>
+
+        <div class="field">
+          <div class="field-head"><label for="bg-color">Background</label><output data-readout="opacity" class="readout"></output></div>
+          <div class="inline">
+            <input id="bg-color" type="color" data-setting="bgColor" class="color-input" aria-label="Background color" />
+            <input type="range" data-setting="opacity" min="0" max="1" step="0.01" aria-label="Background opacity" class="grow" />
+          </div>
+        </div>
+
+        <div class="field">
+          <div class="field-head"><label for="focus-pos">Reading line</label><output data-readout="focusPosition" class="readout"></output></div>
+          <input id="focus-pos" type="range" data-setting="focusPosition" min="0.1" max="0.9" step="0.01" />
+          <p class="hint">Keep it high so your eyes stay near the camera.</p>
+        </div>
+
+        <div class="toggles">
+          <label class="toggle"><span>Highlight current line</span><input type="checkbox" data-setting="highlightLine" /><i></i></label>
+          <label class="toggle"><span>Fade top &amp; bottom edges</span><input type="checkbox" data-setting="fadeEdges" /><i></i></label>
+          <label class="toggle"><span>Mirror text (beam-splitter rigs)</span><input type="checkbox" data-setting="mirrorMode" /><i></i></label>
+        </div>
+      </section>
+
+      <!-- --------------------------------------------------------- Voice tab -->
+      <section class="panel" data-panel="voice" hidden>
+        <label class="toggle feature">
+          <span>
+            <strong>Voice-reactive scrolling</strong>
+            <small>Scrolls while you talk, holds when you stop. Press Play to start listening.</small>
+          </span>
+          <input type="checkbox" data-setting="voiceMode" /><i></i>
         </label>
 
-        <label class="toggle-row" for="highlight-toggle">
-          <span>Highlight current line</span>
-          <input id="highlight-toggle" type="checkbox" checked />
-        </label>
+        <div class="field">
+          <div class="field-head"><label for="mic-select">Microphone</label><button type="button" class="link-btn" id="mic-refresh">Refresh</button></div>
+          <select id="mic-select" class="select"></select>
+        </div>
 
-        <label class="toggle-row" for="movable-toggle">
-          <span>Movable overlay mode</span>
-          <input id="movable-toggle" type="checkbox" />
-        </label>
+        <div class="field">
+          <div class="field-head">
+            <span>Input level</span>
+            <span class="voice-status" id="voice-status">Mic off</span>
+          </div>
+          <div class="meter" id="meter">
+            <div class="meter-fill" id="meter-fill"></div>
+            <div class="meter-threshold" id="meter-threshold" title="Speech threshold"></div>
+          </div>
+          <button type="button" class="btn" id="mic-test">Test microphone</button>
+        </div>
+
+        <div class="field">
+          <div class="field-head"><label for="voice-sens">Sensitivity</label><output data-readout="voiceSensitivity" class="readout"></output></div>
+          <input id="voice-sens" type="range" data-setting="voiceSensitivity" min="0" max="100" step="1" />
+          <p class="hint">Raise it if quiet speech doesn't move the text; lower it if background noise does.</p>
+        </div>
+
+        <div class="field">
+          <div class="field-head"><label for="voice-hold">Keep scrolling after you stop</label><output data-readout="voiceHoldMs" class="readout"></output></div>
+          <input id="voice-hold" type="range" data-setting="voiceHoldMs" min="200" max="3000" step="50" />
+        </div>
+
+        <div class="toggles">
+          <label class="toggle"><span>Release mic while paused</span><input type="checkbox" data-setting="releaseMicWhenPaused" /><i></i></label>
+        </div>
+
+        <div class="note">
+          <strong>Plays nicely with your call app.</strong>
+          The mic is opened in shared mode with echo cancellation, noise suppression and auto-gain
+          turned <em>off</em>, so Zoom, Meet, Teams and browser tabs keep using it normally and your system
+          mic volume is never changed. Audio is analysed locally for loudness only — nothing is recorded or sent anywhere.
+        </div>
       </section>
 
-      <footer class="footer-note">
-        Shortcuts: <code>Ctrl/Cmd+Shift+Space</code> play/pause, <code>Ctrl/Cmd+Shift+R</code> reset,
-        <code>Ctrl/Cmd+Shift+L</code> show windows.
-      </footer>
+      <!-- -------------------------------------------------------- Window tab -->
+      <section class="panel" data-panel="window" hidden>
+        <h3 class="group-title">Privacy</h3>
+        <div class="toggles">
+          <label class="toggle feature">
+            <span>
+              <strong>Hide teleprompter from screen share</strong>
+              <small id="stealth-support">Excluded from screenshots, recordings and screen sharing.</small>
+            </span>
+            <input type="checkbox" data-setting="stealthMode" /><i></i>
+          </label>
+          <label class="toggle"><span>Hide this control panel too</span><input type="checkbox" data-setting="stealthControl" /><i></i></label>
+        </div>
+
+        <h3 class="group-title">Overlay</h3>
+        <div class="toggles">
+          <label class="toggle"><span>Move / resize mode <small>(turns off click-through)</small></span><input type="checkbox" data-setting="overlayMovable" /><i></i></label>
+          <label class="toggle"><span>Show controls on hover</span><input type="checkbox" data-setting="hoverControls" /><i></i></label>
+        </div>
+        <p class="hint" id="hover-hint"></p>
+
+        <div class="field">
+          <div class="field-head"><span>Size</span></div>
+          <div class="button-grid">
+            <button type="button" class="btn" data-preset="compact">Compact</button>
+            <button type="button" class="btn" data-preset="medium">Medium</button>
+            <button type="button" class="btn" data-preset="large">Large</button>
+          </div>
+          <div class="button-grid two">
+            <button type="button" class="btn" id="snap-camera">
+              <svg viewBox="0 0 16 16" aria-hidden="true"><rect x="2" y="4.5" width="8.5" height="7" rx="1.5" fill="none" stroke="currentColor" stroke-width="1.4"/><path d="m10.5 7 3-1.8v5.6l-3-1.8" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/></svg>
+              Snap under camera
+            </button>
+            <button type="button" class="btn" id="toggle-prompter">Hide teleprompter</button>
+          </div>
+        </div>
+
+        <h3 class="group-title">Playback</h3>
+        <div class="field">
+          <div class="field-head"><label for="countdown">Countdown before start</label><output data-readout="countdown" class="readout"></output></div>
+          <input id="countdown" type="range" data-setting="countdown" min="0" max="10" step="1" />
+        </div>
+        <div class="toggles">
+          <label class="toggle"><span>Stop at <code>[pause]</code> markers</span><input type="checkbox" data-setting="pauseMarkers" /><i></i></label>
+        </div>
+
+        <h3 class="group-title">Keyboard</h3>
+        <div class="toggles">
+          <label class="toggle"><span>Global shortcuts</span><input type="checkbox" data-setting="globalShortcuts" /><i></i></label>
+        </div>
+        <dl class="shortcuts" id="shortcut-list">
+          <div><dt><kbd>Ctrl/⌘</kbd><kbd>Shift</kbd><kbd>Space</kbd></dt><dd>Play / pause</dd></div>
+          <div><dt><kbd>Ctrl/⌘</kbd><kbd>Shift</kbd><kbd>R</kbd></dt><dd>Back to top</dd></div>
+          <div><dt><kbd>Ctrl/⌘</kbd><kbd>Shift</kbd><kbd>↑</kbd> <kbd>↓</kbd></dt><dd>Speed ± 10</dd></div>
+          <div><dt><kbd>Ctrl/⌘</kbd><kbd>Shift</kbd><kbd>L</kbd></dt><dd>Show windows</dd></div>
+          <div><dt><kbd>Ctrl/⌘</kbd><kbd>Shift</kbd><kbd>Q</kbd></dt><dd>Quit</dd></div>
+          <div><dt><kbd>Ctrl/⌘</kbd><kbd>Alt</kbd><kbd>Shift</kbd><kbd>V</kbd></dt><dd>Voice mode</dd></div>
+          <div><dt><kbd>Ctrl/⌘</kbd><kbd>Alt</kbd><kbd>Shift</kbd><kbd>M</kbd></dt><dd>Move / resize mode</dd></div>
+          <div><dt><kbd>Ctrl/⌘</kbd><kbd>Alt</kbd><kbd>Shift</kbd><kbd>H</kbd></dt><dd>Hide / show teleprompter</dd></div>
+          <div><dt><kbd>Ctrl/⌘</kbd><kbd>Alt</kbd><kbd>Shift</kbd><kbd>S</kbd></dt><dd>Toggle stealth</dd></div>
+          <div><dt><kbd>Ctrl/⌘</kbd><kbd>Alt</kbd><kbd>Shift</kbd><kbd>←</kbd> <kbd>→</kbd></dt><dd>Previous / next paragraph</dd></div>
+        </dl>
+        <p class="hint warn" id="shortcut-failures" hidden></p>
+      </section>
     </main>
 
     <script src="control.js"></script>

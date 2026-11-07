@@ -1,48 +1,58 @@
-const { contextBridge, ipcRenderer } = require('electron');
+const { contextBridge, ipcRenderer, webUtils } = require('electron');
 
 const sendChannels = new Set([
-  'set-speed',
-  'set-font-size',
-  'set-opacity',
+  'update-settings',
   'set-text',
   'play',
   'pause',
   'reset',
-  'set-color',
-  'toggle-mirror',
-  'open-file-dialog',
-  'enable-mouse',
-  'disable-mouse',
-  'set-highlight',
-  'set-overlay-movable',
-  'state-update'
+  'toggle-play',
+  'seek',
+  'jump',
+  'state-update',
+  'voice-update',
+  'voice-preview',
+  'set-hover-interactive',
+  'window-op-start',
+  'window-op-end',
+  'window-preset',
+  'snap-camera',
+  'toggle-prompter',
+  'show-control'
 ]);
 
 const receiveChannels = new Set([
-  'set-speed',
-  'set-font-size',
-  'set-opacity',
+  'settings-updated',
   'set-text',
+  'text-replaced',
   'play',
   'pause',
   'reset',
-  'set-color',
-  'toggle-mirror',
   'toggle-play',
-  'file-loaded',
+  'seek',
+  'jump',
   'state-update',
-  'settings-updated',
-  'set-highlight',
-  'set-movable'
+  'voice-update',
+  'voice-preview',
+  'platform-info'
+]);
+
+const invokeChannels = new Set([
+  'get-initial-state',
+  'open-file-dialog',
+  'load-file-path',
+  'library-list',
+  'library-save',
+  'library-load',
+  'library-delete',
+  'request-mic-access'
 ]);
 
 contextBridge.exposeInMainWorld('electronAPI', {
   sendCommand: (channel, data) => {
-    if (!sendChannels.has(channel)) {
-      return;
+    if (sendChannels.has(channel)) {
+      ipcRenderer.send(channel, data);
     }
-
-    ipcRenderer.send(channel, data);
   },
 
   onCommand: (channel, callback) => {
@@ -52,19 +62,24 @@ contextBridge.exposeInMainWorld('electronAPI', {
 
     const listener = (_event, payload) => callback(payload);
     ipcRenderer.on(channel, listener);
+    return () => ipcRenderer.removeListener(channel, listener);
+  },
 
-    return () => {
-      ipcRenderer.removeListener(channel, listener);
-    };
+  invoke: (channel, data) => {
+    if (!invokeChannels.has(channel)) {
+      return Promise.reject(new Error(`Channel not allowed: ${channel}`));
+    }
+    return ipcRenderer.invoke(channel, data);
   },
 
   getInitialState: () => ipcRenderer.invoke('get-initial-state'),
 
-  enableMouse: () => {
-    ipcRenderer.send('enable-mouse');
-  },
-
-  disableMouse: () => {
-    ipcRenderer.send('disable-mouse');
+  // Drag-and-drop: File.path was removed from Electron, this is the replacement.
+  getPathForFile: (file) => {
+    try {
+      return webUtils.getPathForFile(file);
+    } catch (_error) {
+      return '';
+    }
   }
 });

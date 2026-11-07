@@ -2,25 +2,88 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
+    <meta
+      http-equiv="Content-Security-Policy"
+      content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; media-src 'self' mediastream: blob:"
+    />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>LensPrompt Overlay</title>
+    <title>ConfiPrompter</title>
     <link rel="stylesheet" href="teleprompter.css" />
   </head>
   <body>
     <div id="overlay">
-      <div id="drag-handle" title="Drag overlay">LensPrompt</div>
-
       <div id="viewport">
-        <div id="center-guide" aria-hidden="true"></div>
+        <div id="reading-line" aria-hidden="true"><span class="caret"></span></div>
         <div id="mirror-shell">
-          <div id="text-track" role="document"></div>
+          <div id="text-track" role="document" aria-live="off"></div>
         </div>
 
-        <div id="empty-state">Load text or type in the control panel to begin.</div>
+        <div id="empty-state">
+          <strong>ConfiPrompter</strong>
+          <span>Type or load a script in the control panel to begin.</span>
+        </div>
+        <div id="countdown" hidden></div>
         <div id="end-indicator" hidden>End of script</div>
+        <div id="voice-badge" hidden><span class="pulse"></span><span id="voice-badge-text">Listening</span></div>
       </div>
+
+      <div id="toolbar" role="toolbar" aria-label="Teleprompter controls">
+        <div class="tb-grip" data-op="move" title="Drag to move">
+          <svg viewBox="0 0 16 16" aria-hidden="true"><circle cx="5" cy="4" r="1.3"/><circle cx="11" cy="4" r="1.3"/><circle cx="5" cy="8" r="1.3"/><circle cx="11" cy="8" r="1.3"/><circle cx="5" cy="12" r="1.3"/><circle cx="11" cy="12" r="1.3"/></svg>
+        </div>
+
+        <button class="tb-btn tb-primary" data-action="toggle-play" id="tb-play" title="Play / pause (Ctrl+Shift+Space)">
+          <svg class="i-play" viewBox="0 0 16 16" aria-hidden="true"><path d="M5 3.2v9.6a.6.6 0 0 0 .9.5l7.6-4.8a.6.6 0 0 0 0-1L5.9 2.7a.6.6 0 0 0-.9.5z"/></svg>
+          <svg class="i-pause" viewBox="0 0 16 16" aria-hidden="true"><rect x="4" y="3" width="3" height="10" rx="1"/><rect x="9" y="3" width="3" height="10" rx="1"/></svg>
+        </button>
+
+        <div class="tb-group" title="Scroll speed">
+          <button class="tb-btn" data-action="speed-down" aria-label="Slower">−</button>
+          <span class="tb-readout" id="tb-speed">40</span>
+          <button class="tb-btn" data-action="speed-up" aria-label="Faster">+</button>
+        </div>
+
+        <div class="tb-group tb-optional" title="Text size">
+          <button class="tb-btn tb-small" data-action="font-down" aria-label="Smaller text">A</button>
+          <button class="tb-btn" data-action="font-up" aria-label="Larger text">A</button>
+        </div>
+
+        <button class="tb-btn" data-action="toggle-voice" id="tb-voice" title="Voice-reactive scrolling (Ctrl+Alt+Shift+V)">
+          <svg viewBox="0 0 16 16" aria-hidden="true"><rect x="5.5" y="1.5" width="5" height="8.5" rx="2.5"/><path d="M3.2 7.5a4.8 4.8 0 0 0 9.6 0M8 12.3v2.2" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>
+          <span class="mic-meter"><span id="tb-mic-level"></span></span>
+        </button>
+
+        <span class="tb-spacer"></span>
+
+        <span class="tb-stealth" id="tb-stealth" title="Hidden from screen share">
+          <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M8 1.5 2.5 3.6v4c0 3.3 2.3 5.9 5.5 6.9 3.2-1 5.5-3.6 5.5-6.9v-4L8 1.5z"/></svg>
+        </span>
+
+        <button class="tb-btn" data-action="toggle-lock" id="tb-lock" title="Move / resize mode (Ctrl+Alt+Shift+M)">
+          <svg class="i-lock" viewBox="0 0 16 16" aria-hidden="true"><rect x="3" y="7" width="10" height="7" rx="1.5"/><path d="M5.2 7V5a2.8 2.8 0 0 1 5.6 0v2" fill="none" stroke="currentColor" stroke-width="1.4"/></svg>
+          <svg class="i-unlock" viewBox="0 0 16 16" aria-hidden="true"><rect x="3" y="7" width="10" height="7" rx="1.5"/><path d="M5.2 7V5a2.8 2.8 0 0 1 5.4-1" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>
+        </button>
+        <button class="tb-btn tb-optional" data-action="show-control" title="Open control panel (Ctrl+Shift+L)">
+          <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M2 4h7M12 4h2M2 8h2M7 8h7M2 12h8M13 12h1" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><circle cx="10.5" cy="4" r="1.6"/><circle cx="5.5" cy="8" r="1.6"/><circle cx="11.5" cy="12" r="1.6"/></svg>
+        </button>
+        <button class="tb-btn" data-action="hide" title="Hide teleprompter (Ctrl+Alt+Shift+H)">
+          <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M4 4l8 8M12 4l-8 8" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
+        </button>
+      </div>
+
+      <div id="progress"><div id="progress-fill"></div></div>
+
+      <div class="rz" data-edge="n"></div>
+      <div class="rz" data-edge="s"></div>
+      <div class="rz" data-edge="e"></div>
+      <div class="rz" data-edge="w"></div>
+      <div class="rz" data-edge="ne"></div>
+      <div class="rz" data-edge="nw"></div>
+      <div class="rz" data-edge="se"></div>
+      <div class="rz" data-edge="sw"></div>
     </div>
 
+    <script src="voice.js"></script>
     <script src="teleprompter.js"></script>
   </body>
 </html>
